@@ -2,6 +2,7 @@ import React from "react";
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
 import HeaderRoutes from "./HeaderRoutes";
+import MobileMenu from "./MobileMenu";
 
 const Header = () => {
   return (
@@ -11,6 +12,7 @@ const Header = () => {
           <Logo />
           <SearchBar />
           <HeaderRoutes />
+          <MobileMenu />
         </div>
       </div>
     </header>
