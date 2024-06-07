@@ -1,6 +1,5 @@
 "use client";
-
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -12,20 +11,30 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "@/components/ui/use-toast";
+
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { Edit, Undo } from "lucide-react";
 
 const formSchema = z.object({
   title: z.string().min(1, {
-    message: "Title must be at least 1 characters.",
+    message: "title must be at least 1 characters.",
   }),
 });
 
-const NewCoursePage = () => {
+interface TitleFormProps {
+  initaldata: {
+    title: string;
+  };
+  courseId: string;
+}
+
+const TitleForm = ({ courseId, initaldata }: TitleFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -34,16 +43,28 @@ const NewCoursePage = () => {
   });
 
   const { isSubmitting, isValid } = form.formState;
-
   const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
+
+  const toogleEdit = () => {
+    setIsEditing(current => !current);
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await axios.post("/api/courses", values);
-      router.push(`/instructor/courses/${response.data.id}`);
+      const response = await axios.patch(`/api/courses/${courseId}`, values);
+      toast({
+        title: "Success",
+        description: "Title has been updated",
+        variant: "success",
+      });
+
+      toogleEdit();
+
+      router.refresh();
     } catch (error) {
       toast({
-        title: "Something went wrong!",
+        title: "Something Went Wrong",
         description: `${error}`,
         variant: "destructive",
       });
@@ -51,11 +72,24 @@ const NewCoursePage = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto items-center justify-center flex h-full">
-      <div className="space-y-4">
-        <h1 className="text-4xl">New Course</h1>
-        <p className="text-sm">What would you like to name your course?</p>
+    <div className="mt-10 bg-slate-100 rounded-lg p-5">
+      <div className="flex items-center justify-between">
+        <h1 className="font-semibold">Course Title</h1>
+        <Button onClick={toogleEdit} variant="ghost">
+          {isEditing ? (
+            <>
+              <Undo className="w-4 h-4 mr-2" /> Cancel
+            </>
+          ) : (
+            <>
+              <Edit className="w-4 h-4 mr-2" /> Edit
+            </>
+          )}
+        </Button>
+      </div>
 
+      {!isEditing && <p className="text-base mt-3">{initaldata.title}</p>}
+      {isEditing && (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
@@ -63,7 +97,6 @@ const NewCoursePage = () => {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
@@ -76,19 +109,17 @@ const NewCoursePage = () => {
                 </FormItem>
               )}
             />
-            <div className="flex gap-2 items-center">
-              <Button type="button" variant="outline">
-                Cancel
-              </Button>
+
+            <div className=" flex gap-2 items-center">
               <Button type="submit" disabled={!isValid || isSubmitting}>
                 Continue
               </Button>
             </div>
           </form>
         </Form>
-      </div>
+      )}
     </div>
   );
 };
 
-export default NewCoursePage;
+export default TitleForm;

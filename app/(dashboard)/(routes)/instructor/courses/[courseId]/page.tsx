@@ -1,9 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { prismadb } from "@/lib/db";
 import { auth } from "@clerk/nextjs";
-import { LayoutDashboardIcon } from "lucide-react";
+import { DessertIcon, LayoutDashboardIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 import React from "react";
+import TitleForm from "./_components/TitleForm";
+import DescriptionForm from "./_components/DescriptionForm";
 
 interface CourseDetailProps {
   params: {
@@ -28,19 +30,18 @@ const CourseDetail = async ({ params }: CourseDetailProps) => {
     return redirect("/");
   }
 
-  const RequiredFileds = [
+  const RequiredFields = [
     course.title,
     course.description,
-    course.price,
     course.imageUrl,
+    course.price,
     course.categoryId,
   ];
 
-  const totalFields = RequiredFileds.length;
-
-  const completedFields = RequiredFileds.filter(Boolean).length;
-
+  const totalFields = RequiredFields.length;
+  const completedFields = RequiredFields.filter(Boolean).length;
   const completeText = `(${completedFields}/${totalFields})`;
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -52,9 +53,7 @@ const CourseDetail = async ({ params }: CourseDetailProps) => {
             Course Setup
           </h1>
 
-          <span className="text-base">
-            Please complete all fields {completeText}
-          </span>
+          <span className="text-base">Complete all fields {completeText}</span>
         </div>
       </div>
 
@@ -67,10 +66,24 @@ const CourseDetail = async ({ params }: CourseDetailProps) => {
             </Badge>
             <h2 className="text-xl">Customize your course</h2>
           </div>
+
+          <TitleForm courseId={course.id} initaldata={course} />
         </div>
 
         {/** Col-span-1 */}
-        <div></div>
+        <div>
+          <div className="flex items-center gap-2">
+            <Badge variant="mybadge" className="p-4">
+              <DessertIcon className="h-8 w-8 text-purple-700" />
+            </Badge>
+            <h2 className="text-xl">Description your course</h2>
+          </div>
+
+          <DescriptionForm
+            courseId={course.id}
+            initaldata={{ description: course.description ?? "" }}
+          />
+        </div>
       </div>
     </div>
   );
