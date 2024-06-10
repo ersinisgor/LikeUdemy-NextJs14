@@ -19,7 +19,7 @@ import { toast } from "@/components/ui/use-toast";
 
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { Edit, Undo } from "lucide-react";
+import { Edit, PlusIcon, Undo } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Course } from "@prisma/client";
 
@@ -73,7 +73,32 @@ const ImageForm = ({ courseId, initaldata }: ImageFormProps) => {
     }
   };
 
-  return <div>ImageForm</div>;
+  return (
+    <div className="mt-10 bg-slate-100 rounded-lg p-5">
+      <div className="flex items-center justify-between">
+        <h1 className="font-semibold">Images</h1>
+        <Button onClick={toogleEdit} variant="ghost">
+          {isEditing && (
+            <>
+              <Undo className="w-4 h-4 mr-2" /> Cancel
+            </>
+          )}
+
+          {!isEditing && !initaldata.imageUrl && (
+            <>
+              <PlusIcon className="w-4 h-4 mr-2" /> Add Image
+            </>
+          )}
+
+          {!isEditing && initaldata.imageUrl && (
+            <>
+              <Edit className="w-4 h-4 mr-2" /> Edit Image
+            </>
+          )}
+        </Button>
+      </div>
+    </div>
+  );
 };
 
 export default ImageForm;
