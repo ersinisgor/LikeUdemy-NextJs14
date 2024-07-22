@@ -19,9 +19,11 @@ import { toast } from "@/components/ui/use-toast";
 
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { Edit, PlusIcon, Undo } from "lucide-react";
+import { Edit, ImageIcon, PlusIcon, Undo } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Course } from "@prisma/client";
+import Image from "next/image";
+import FileUpload from "@/components/ui/file-upload";
 
 const formSchema = z.object({
   imageUrl: z.string().min(1, {
@@ -97,6 +99,39 @@ const ImageForm = ({ courseId, initaldata }: ImageFormProps) => {
           )}
         </Button>
       </div>
+
+      {!isEditing &&
+        (!initaldata.imageUrl ? (
+          <>
+            <div className="flex items-center justify-center h-80 bg-slate-200 mt-2">
+              <ImageIcon className="w-16 h-16" />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="relative aspect-video mt-2">
+              <Image
+                alt=""
+                fill
+                className="object-cover"
+                src={initaldata.imageUrl}
+              />
+            </div>
+          </>
+        ))}
+
+      {isEditing && (
+        <>
+          <FileUpload
+            endpoint="courseImage"
+            onChange={url => {
+              if (url) {
+                onSubmit({ imageUrl: url });
+              }
+            }}
+          />
+        </>
+      )}
     </div>
   );
 };
